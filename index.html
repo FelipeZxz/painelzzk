@@ -27,12 +27,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html, body {
-            height: 100%;
-            overflow: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
         body {
             background: linear-gradient(135deg, #001a00, #003300, #004d00);
             min-height: 100vh;
@@ -43,15 +37,13 @@
             animation: fadeIn 1s ease-in-out forwards;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
-            position: relative;
         }
 
         @media all and (display-mode: standalone) {
             body {
                 padding-top: env(safe-area-inset-top);
-                height: 100%;
-                overflow: auto;
-                -webkit-overflow-scrolling: touch;
+                height: 100vh;
+                overflow: hidden;
             }
         }
 
@@ -67,6 +59,139 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        /* Tela de Login */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #001a00, #003300, #004d00);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .login-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-container {
+            background: rgba(0, 40, 0, 0.8);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.2);
+            transform: scale(0.9);
+            opacity: 0;
+            animation: loginFadeIn 0.8s ease forwards;
+        }
+
+        @keyframes loginFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .login-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ff00, #00cc00, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .login-input:focus {
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .login-input.error {
+            border-color: #ff3333;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
+            animation: shake 0.5s;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 8px 25px rgba(0, 255, 0, 0.4);
+        }
+
+        .login-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .login-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s ease infinite;
+        }
+
+        .login-message {
+            margin-top: 15px;
+            color: #ff3333;
+            font-size: 0.9em;
+            min-height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .login-message.show {
+            opacity: 1;
         }
 
         /* Tela de boas-vindas */
@@ -127,8 +252,6 @@
             transform: translateY(20px);
             animation: fadeInUp 0.5s ease forwards;
             animation-delay: 0.2s;
-            min-height: auto;
-            overflow: visible;
         }
 
         @keyframes fadeInUp {
@@ -176,7 +299,6 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            overflow: visible;
         }
 
         .panel {
@@ -553,16 +675,19 @@
                 transform: scale(1);
             }
         }
-
-        /* Adicionando estilos específicos para melhorar a compatibilidade com Android */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                min-height: -webkit-fill-available;
-            }
-        }
     </style>
 </head>
 <body>
+    <!-- Tela de Login -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-container">
+            <h2 class="login-title">Acesso Restrito</h2>
+            <input type="password" class="login-input" id="key-input" placeholder="Digite a chave de acesso">
+            <button class="login-btn" id="login-btn" onclick="validateKey()">Acessar Sistema</button>
+            <div class="login-message" id="login-message"></div>
+        </div>
+    </div>
+    
     <!-- Tela de boas-vindas -->
     <div class="welcome-screen" id="welcome-screen">
         <div class="welcome-message">Seja Bem-Vindo!</div>
@@ -570,7 +695,7 @@
     
     <div id="particles-js"></div>
     
-    <div class="container">
+    <div class="container" id="main-container">
         <div class="header">
             <h1>PainelZZK</h1>
             <div class="status-bar">
@@ -704,32 +829,120 @@
 
     <script>
         let isInjecting = false;
+        const CORRECT_KEY = "FF-AUX1LIO-9X7Q";
 
-        // Mostrar tela de boas-vindas primeiro
+        // Mostrar tela de login primeiro
         document.addEventListener('DOMContentLoaded', function() {
-            // Esconder a tela de boas-vindas após 2 segundos
-            setTimeout(function() {
-                document.getElementById('welcome-screen').classList.add('hidden');
-            }, 2000);
+            // Esconder o container principal inicialmente
+            document.getElementById('main-container').style.display = 'none';
+            document.getElementById('welcome-screen').style.display = 'none';
             
-            // Forçar redimensionamento para garantir que o scroll funcione
+            // Focar no input da chave
             setTimeout(function() {
-                window.dispatchEvent(new Event('resize'));
+                document.getElementById('key-input').focus();
             }, 500);
+            
+            // Permitir enviar com Enter
+            document.getElementById('key-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    validateKey();
+                }
+            });
         });
 
-        // Configuração das partículas
-        particlesJS('particles-js', {
-            "particles": {
-                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#00ff00" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": true },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#00ff00", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false }
-            }
-        });
+        // Função para validar a chave
+        function validateKey() {
+            const keyInput = document.getElementById('key-input');
+            const loginBtn = document.getElementById('login-btn');
+            const messageDiv = document.getElementById('login-message');
+            const enteredKey = keyInput.value.trim();
+            
+            // Mostrar loading no botão
+            loginBtn.classList.add('loading');
+            messageDiv.classList.remove('show');
+            
+            // Simular verificação
+            setTimeout(() => {
+                if (enteredKey === CORRECT_KEY) {
+                    // Chave correta
+                    keyInput.classList.remove('error');
+                    messageDiv.textContent = 'Chave válida! Acessando sistema...';
+                    messageDiv.style.color = '#00ff00';
+                    messageDiv.classList.add('show');
+                    
+                    // Esconder tela de login e mostrar boas-vindas
+                    setTimeout(() => {
+                        document.getElementById('login-screen').classList.add('hidden');
+                        document.getElementById('welcome-screen').style.display = 'flex';
+                        
+                        // Mostrar tela de boas-vindas e depois o painel principal
+                        setTimeout(() => {
+                            document.getElementById('welcome-screen').classList.add('hidden');
+                            document.getElementById('main-container').style.display = 'block';
+                            
+                            // Iniciar as animações do painel
+                            initPanelAnimations();
+                        }, 2000);
+                    }, 1000);
+                } else {
+                    // Chave incorreta
+                    keyInput.classList.add('error');
+                    messageDiv.textContent = 'Chave inválida! Tente novamente.';
+                    messageDiv.style.color = '#ff3333';
+                    messageDiv.classList.add('show');
+                    loginBtn.classList.remove('loading');
+                    
+                    // Efeito de shake no input
+                    keyInput.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        keyInput.style.animation = '';
+                    }, 500);
+                }
+            }, 800);
+        }
+
+        // Inicializar animações do painel
+        function initPanelAnimations() {
+            // Configuração das partículas
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#00ff00" },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 0.5, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#00ff00", "opacity": 0.4, "width": 1 },
+                    "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false }
+                }
+            });
+
+            // Atualizar tempo atual
+            updateTime();
+            setInterval(updateTime, 1000);
+
+            // Simulação de FPS counter
+            updateFPS();
+            setInterval(updateFPS, 1000);
+
+            // Event listeners para sliders
+            document.getElementById('fps-slider').addEventListener('input', function(e) {
+                document.getElementById('fps-value').textContent = e.target.value + ' FPS';
+            });
+
+            document.getElementById('aimfov-slider').addEventListener('input', function(e) {
+                document.getElementById('aimfov-value').textContent = e.target.value + '°';
+            });
+
+            // Toggle buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            });
+
+            // Iniciar monitoramento de performance
+            setInterval(updatePerformanceBars, 2000);
+        }
 
         // Atualizar tempo atual
         function updateTime() {
@@ -737,8 +950,6 @@
             const timeString = now.toLocaleTimeString('pt-BR');
             document.getElementById('current-time').textContent = timeString;
         }
-        updateTime();
-        setInterval(updateTime, 1000);
 
         // Simulação de FPS counter
         function updateFPS() {
@@ -747,23 +958,6 @@
             const currentFPS = targetFPS - Math.floor(Math.random() * 10);
             document.getElementById('fps-counter').textContent = Math.max(currentFPS, 30);
         }
-        setInterval(updateFPS, 1000);
-
-        // Event listeners para sliders
-        document.getElementById('fps-slider').addEventListener('input', function(e) {
-            document.getElementById('fps-value').textContent = e.target.value + ' FPS';
-        });
-
-        document.getElementById('aimfov-slider').addEventListener('input', function(e) {
-            document.getElementById('aimfov-value').textContent = e.target.value + '°';
-        });
-
-        // Toggle buttons
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.classList.toggle('active');
-            });
-        });
 
         // Função para aplicar configurações de vídeo
         function applyVideoSettings() {
@@ -791,103 +985,103 @@
                 // Mostrar configurações aplicadas
                 appliedSettings.classList.add('show');
                 
-                showNotification('Configurações de vídeo aplicadas com sucesso!');
+                // Mostrar notificação
+                showNotification('Configurações aplicadas com sucesso!');
                 
-                // Atualizar FPS counter com novo valor
-                updateFPS();
-                
+                // Esconder após alguns segundos
+                setTimeout(() => {
+                    appliedSettings.classList.remove('show');
+                }, 5000);
             }, 1500);
         }
 
-        // Função de injeção
+        // Atualizar barras de performance
+        function updatePerformanceBars() {
+            const cpuBar = document.getElementById('cpu-bar');
+            const gpuBar = document.getElementById('gpu-bar');
+            
+            // Gerar valores aleatórios
+            const cpuUsage = 30 + Math.floor(Math.random() * 40);
+            const gpuUsage = 60 + Math.floor(Math.random() * 30);
+            
+            cpuBar.style.width = cpuUsage + '%';
+            cpuBar.nextElementSibling.textContent = cpuUsage + '%';
+            
+            gpuBar.style.width = gpuUsage + '%';
+            gpuBar.nextElementSibling.textContent = gpuUsage + '%';
+        }
+
+        // Função para iniciar injeção
         function startInjection() {
             if (isInjecting) return;
             
             isInjecting = true;
             const injectBtn = document.getElementById('inject-btn');
-            const statusDiv = document.getElementById('injection-status');
+            const injectionStatus = document.getElementById('injection-status');
             const loadingBar = document.getElementById('loading-bar');
             const loadingFill = document.getElementById('loading-fill');
             
-            // Animação de loading no botão
-            injectBtn.classList.add('btn-loading');
-            
-            // Atualizar UI para estado de injeção
-            injectBtn.textContent = '⏳ Injetando...';
+            // Atualizar UI
+            injectBtn.textContent = 'Injetando...';
             injectBtn.classList.add('injecting');
-            statusDiv.className = 'injection-status injecting';
-            statusDiv.innerHTML = '<span class="status-indicator" style="background: #FF9800; box-shadow: 0 0 8px #FF9800;"></span>Injetando no processo...';
-            
-            // Mostrar barra de loading
+            injectionStatus.innerHTML = '<span class="status-indicator" style="background: #FF9800; box-shadow: 0 0 8px #FF9800;"></span> Injetando...';
+            injectionStatus.className = 'injection-status injecting';
             loadingBar.style.display = 'block';
             
-            // Simular progresso
+            // Simular progresso de injeção
             let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 20;
-                if (progress > 100) progress = 100;
-                loadingFill.style.width = progress + '%';
-                
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15);
                 if (progress >= 100) {
-                    clearInterval(progressInterval);
+                    progress = 100;
+                    clearInterval(interval);
                     
-                    // Simular sucesso após 1 segundo
+                    // Finalizar injeção
                     setTimeout(() => {
-                        injectBtn.textContent = '✅ Injetado com Sucesso';
-                        injectBtn.classList.remove('injecting', 'btn-loading');
+                        injectBtn.textContent = '✅ Injeção Concluída';
+                        injectBtn.classList.remove('injecting');
                         injectBtn.classList.add('success');
-                        statusDiv.className = 'injection-status success';
-                        statusDiv.innerHTML = '<span class="status-indicator status-online"></span>Injeção realizada com sucesso!';
-                        
+                        injectionStatus.innerHTML = '<span class="status-indicator status-online"></span> Injeção concluída com sucesso!';
+                        injectionStatus.className = 'injection-status success';
                         loadingBar.style.display = 'none';
-                        loadingFill.style.width = '0%';
                         
-                        showNotification('Função injetada no processo com sucesso!');
+                        showNotification('Injeção realizada com sucesso!');
                         
-                        // Resetar após 3 segundos
+                        // Reset após alguns segundos
                         setTimeout(() => {
                             injectBtn.textContent = '💉 Injetar no Processo';
                             injectBtn.classList.remove('success');
-                            statusDiv.className = 'injection-status ready';
-                            statusDiv.innerHTML = '<span class="status-indicator status-online"></span>Pronto para injeção';
+                            injectionStatus.innerHTML = '<span class="status-indicator status-online"></span> Pronto para injeção';
+                            injectionStatus.className = 'injection-status ready';
                             isInjecting = false;
-                        }, 3000);
-                        
-                    }, 1000);
+                        }, 5000);
+                    }, 500);
                 }
+                loadingFill.style.width = progress + '%';
             }, 200);
         }
 
+        // Função para mostrar notificações
         function showNotification(message) {
+            // Criar elemento de notificação
             const notification = document.createElement('div');
             notification.className = 'notification';
             notification.textContent = message;
             document.body.appendChild(notification);
             
-            setTimeout(() => notification.classList.add('show'), 100);
+            // Mostrar notificação
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
             
+            // Esconder após 3 segundos
             setTimeout(() => {
                 notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
             }, 3000);
         }
-
-        // Simulação de barras de performance
-        function updatePerformanceBars() {
-            const cpuBar = document.getElementById('cpu-bar');
-            const gpuBar = document.getElementById('gpu-bar');
-            
-            const cpuUsage = 30 + Math.random() * 40;
-            const gpuUsage = 60 + Math.random() * 30;
-            
-            cpuBar.style.width = cpuUsage + '%';
-            gpuBar.style.width = gpuUsage + '%';
-            
-            cpuBar.parentElement.nextElementSibling.textContent = Math.round(cpuUsage) + '%';
-            gpuBar.parentElement.nextElementSibling.textContent = Math.round(gpuUsage) + '%';
-        }
-        
-        setInterval(updatePerformanceBars, 2000);
     </script>
 </body>
 </html>
