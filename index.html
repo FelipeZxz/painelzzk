@@ -7,7 +7,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Painelzzk">
     <link rel="icon" href="icone.png" type="image/png">
+    <!-- Adicionando vários tamanhos de ícone para melhor compatibilidade com iOS -->
     <link rel="apple-touch-icon" href="icone.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icone.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icone.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icone.png">
     <link rel="apple-touch-startup-image" href="icone.png">
     <meta name="theme-color" content="#00cc00">
     <meta name="msapplication-TileColor" content="#00cc00">
@@ -55,6 +59,55 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        /* Tela de boas-vindas */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #001a00, #003300, #004d00);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .welcome-message {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff00, #00cc00, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            animation: pulseWelcome 2s infinite, fadeInUpWelcome 1.2s ease-out;
+        }
+
+        @keyframes pulseWelcome {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes fadeInUpWelcome {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .container {
@@ -492,6 +545,11 @@
     </style>
 </head>
 <body>
+    <!-- Tela de boas-vindas -->
+    <div class="welcome-screen" id="welcome-screen">
+        <div class="welcome-message">Seja Bem-Vindo!</div>
+    </div>
+    
     <div id="particles-js"></div>
     
     <div class="container">
@@ -628,6 +686,14 @@
 
     <script>
         let isInjecting = false;
+
+        // Mostrar tela de boas-vindas primeiro
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esconder a tela de boas-vindas após 2 segundos
+            setTimeout(function() {
+                document.getElementById('welcome-screen').classList.add('hidden');
+            }, 2000);
+        });
 
         // Configuração das partículas
         particlesJS('particles-js', {
